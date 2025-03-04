@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=dialog
 ENV PUB_HOSTED_URL=https://pub.flutter-io.cn
 ENV FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
 
-RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
+RUN git clone -b stable https://github.com/flutter/flutter.git /usr/local/flutter
 
 ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
