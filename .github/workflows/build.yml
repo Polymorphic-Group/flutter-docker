@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      flutter_version: ${{ steps.extract_version.outputs.flutter_version }}
 
     steps:
       - name: Checkout repository
@@ -20,10 +22,12 @@ jobs:
         run: docker build -t ghcr.io/polymorphic-group/flutter:latest .
 
       - name: Extract Flutter version
+        id: extract_version
         run: |
           FLUTTER_VERSION=$(docker run --rm ghcr.io/polymorphic-group/flutter:latest flutter --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
           echo "Flutter version: $FLUTTER_VERSION"
           echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
+          echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
 
       - name: Tag Docker image with version
         run: docker tag ghcr.io/polymorphic-group/flutter:latest ghcr.io/polymorphic-group/flutter:${{ env.FLUTTER_VERSION }}
@@ -47,5 +51,10 @@ jobs:
       - name: Build Docker image with dependencies
         run: docker build -f Dockerfile.with-deps -t ghcr.io/polymorphic-group/flutter:with-deps .
 
-      - name: Push Docker image with dependencies
-        run: docker push ghcr.io/polymorphic-group/flutter:with-deps
+      - name: Tag Docker image with Flutter version
+        run: docker tag ghcr.io/polymorphic-group/flutter:with-deps ghcr.io/polymorphic-group/flutter:with-deps-${{ needs.build.outputs.flutter_version }}
+
+      - name: Push Docker images with dependencies
+        run: |
+          docker push ghcr.io/polymorphic-group/flutter:with-deps
+          docker push ghcr.io/polymorphic-group/flutter:with-deps-${{ needs.build.outputs.flutter_version }}
