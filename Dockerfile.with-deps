@@ -1,0 +1,7 @@
+FROM ghcr.io/polymorphic-group/flutter:latest
+
+WORKDIR /app
+
+COPY pubspec.yaml .
+
+RUN flutter pub get
